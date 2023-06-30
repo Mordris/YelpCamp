@@ -16,7 +16,7 @@ const User = require("./models/user");
 const helmet = require("helmet");
 
 const mongoSanitize = require("express-mongo-sanitize");
-const MongoStore = require("connect-mongo");
+const MongoStore = require("connect-mongo")(session);
 const userRoutes = require("./routes/users");
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");
@@ -44,13 +44,19 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
-app.use(mongoSanitize());
+app.use(mongoSanitize(
+    {
+        replaceWith: '_'
+    }
+));
+
+const secret = process.env.SECRET || "thisshouldbeabettersecret!"
 
 const store = MongoStore.create({
     mongoUrl: atlasdbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: 'thisshouldbeabettersecret!'
+        secret,
     }
 });
 
@@ -61,7 +67,7 @@ store.on("error", function (e) {
 const sessionConfig = {
     store,
     name: "session",
-    secret: "thisshouldbeabettersecret!",
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -135,12 +141,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.get("/fakeUser", async (req, res) => {
-    const user = new User({ email: "email@gmail.com", username: "username" });
-    const newUser = await User.register(user, "password");
-    res.send(newUser);
-});
-
 app.use("/", userRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use("/campgrounds/:id/reviews", reviewRoutes);
@@ -159,6 +159,7 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render("error", { err });
 });
 
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-});
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`Serving on port ${port}`)
+})
