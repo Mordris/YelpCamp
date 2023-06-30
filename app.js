@@ -16,7 +16,7 @@ const User = require("./models/user");
 const helmet = require("helmet");
 
 const mongoSanitize = require("express-mongo-sanitize");
-const MongoStore = require("connect-mongo")(session);
+const MongoStore = require("connect-mongo");
 const userRoutes = require("./routes/users");
 const campgroundRoutes = require("./routes/campgrounds");
 const reviewRoutes = require("./routes/reviews");
@@ -52,11 +52,11 @@ app.use(mongoSanitize(
 
 const secret = process.env.SECRET || "thisshouldbeabettersecret!"
 
-const store = new MongoStore.create({
+const store = MongoStore.create({
     mongoUrl: atlasdbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret,
+        secret
     }
 });
 
