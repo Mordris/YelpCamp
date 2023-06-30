@@ -24,7 +24,7 @@ const atlasdbUrl = process.env.DB_URL;
 const dbUrl = "mongodb://127.0.0.1:27017/yelp-camp";
 /* "mongodb://127.0.0.1:27017/yelp-camp" */
 
-mongoose.connect(dbUrl, {
+mongoose.connect(atlasdbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
@@ -53,7 +53,7 @@ app.use(mongoSanitize(
 const secret = process.env.SECRET || "thisshouldbeabettersecret!"
 
 const store = MongoStore.create({
-    mongoUrl: dbUrl,
+    mongoUrl: atlasdbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
         secret
