@@ -52,7 +52,7 @@ app.use(mongoSanitize(
 
 const secret = process.env.SECRET || "thisshouldbeabettersecret!"
 
-const store = MongoStore.create({
+const store = new MongoStore.create({
     mongoUrl: atlasdbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
